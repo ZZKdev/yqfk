@@ -46,7 +46,7 @@ nohup python yqfk.py &
 sckey = ''
 # text 是消息的标题（必填）
 # desp 是正文消息（可空，支持MarkDown）
-payload = {'text': '今日提交成功', 'desp': ''}
+payload = {'text': u'今日提交成功', 'desp': ''}
 ```
 
 提交成功后会发送一条消息到微信。

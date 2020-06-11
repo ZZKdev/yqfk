@@ -14,7 +14,7 @@ username = 'your student number'
 password = 'your password'
 # 可选
 sckey = ''
-payload = {'text': '今日提交成功'}
+payload = {'text': u'今日提交成功', 'desp': ''}
 
 # fail-fast
 chrome_options = webdriver.ChromeOptions()
@@ -37,11 +37,11 @@ def submit_form():
     wait.until(EC.url_contains('yqfk.dgut.edu.cn/main'))
 
     # 等代身份信息加载，可能是已经打卡，也可能还没打卡 
-    wait.until(lambda driver: "打卡" in driver.page_source)
+    wait.until(lambda driver: u"打卡" in driver.page_source)
 
     retry_times = 0
     # 您今日尚未打卡
-    while "提交成功" not in driver.page_source and retry_times < 3:
+    while u"提交成功" not in driver.page_source and retry_times < 3:
         retry_times += 1
         # 要等待多个 ajax 请求
         time.sleep(5 * retry_times)
@@ -50,7 +50,7 @@ def submit_form():
             driver.find_element_by_css_selector('.am-button.am-button-primary').click()
 
     # 没有提交成功等一个小时后再运行一次
-    if "提交成功" not in driver.page_source:
+    if u"提交成功" not in driver.page_source:
         run_date = datetime.now() + timedelta(hours=1)
         scheduler.add_job(submit_form, 'date', run_date=run_date)
     else:
@@ -63,4 +63,5 @@ def submit_form():
 scheduler = BlockingScheduler({'apschedule.timezone': 'Asia/Shanghai'})
 # 每天晚上 12:30 运行
 scheduler.add_job(submit_form, 'cron', hour=0, minute=30)
+submit_form()
 scheduler.start()
