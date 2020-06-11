@@ -1,3 +1,6 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,10 +11,15 @@ from datetime import datetime, timedelta
 username = 'your student number'
 password = 'your password'
 
+# fail-fast
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument('--no-proxy-server')
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('--no-sandbox')
+driver = webdriver.Chrome(options=chrome_options)
+
 def submit_form():
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--no-proxy-server')
-    driver = webdriver.Chrome(options=chrome_options)
 
     # login
     driver.get('https://cas.dgut.edu.cn/home/Oauth/getToken/appid/illnessProtectionHome/state/home.html')
