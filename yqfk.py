@@ -49,6 +49,6 @@ def submit_form():
         scheduler.add_job(submit_form, 'date', run_date=run_date)
 
 scheduler = BlockingScheduler({'apschedule.timezone': 'Asia/Shanghai'})
-# 每天 12:30 运行
-scheduler.add_job(submit_form, 'cron', hour=12, minute=30)
+# 每天晚上 12:30 运行
+scheduler.add_job(submit_form, 'cron', hour=0, minute=30)
 scheduler.start()
