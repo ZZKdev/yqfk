@@ -9,12 +9,15 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 import requests
+import logging
 
 username = 'your student number'
 password = 'your password'
 # 可选
 sckey = ''
 payload = {'text': u'今日提交成功', 'desp': ''}
+# logging
+logging.basicConfig(format='%(asctime)s-%(name)s-%(levelname)s:%(message)s',level=logging.INFO)
 
 # fail-fast
 chrome_options = webdriver.ChromeOptions()
@@ -46,7 +49,8 @@ def submit_form():
         # 要等待多个 ajax 请求
         time.sleep(5 * retry_times)
         # submit
-        if EC.presence_of_element_located((By.CSS_SELECTOR, '.am-button.am-button-primary')):
+        if driver.find_elements_by_css_selector('.am-button.am-button-primary'):
+            logging.info(u'点击提交')
             driver.find_element_by_css_selector('.am-button.am-button-primary').click()
 
     # 没有提交成功等一个小时后再运行一次
@@ -56,12 +60,15 @@ def submit_form():
     else:
         # 提交成功
         # 如果配置了 sckey 就推送消息到微信
+        logging.info(u'提交成功')
         if sckey != '':
             requests.post('https://sc.ftqq.com/' + sckey + '.send', data=payload)
+            logging.info(u'发送推送')
 
 
 scheduler = BlockingScheduler({'apschedule.timezone': 'Asia/Shanghai'})
 # 每天晚上 12:30 运行
 scheduler.add_job(submit_form, 'cron', hour=0, minute=30)
+# fail-fast
 submit_form()
 scheduler.start()
