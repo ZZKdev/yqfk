@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from selenium.webdriver.common.by import By
 import requests
 import logging
+import signal
 
 username = 'your student number'
 password = 'your password'
@@ -18,6 +19,7 @@ sckey = ''
 payload = {'text': u'今日提交成功', 'desp': ''}
 # logging
 logging.basicConfig(format='%(asctime)s-%(name)s-%(levelname)s:%(message)s',level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # fail-fast
 chrome_options = webdriver.ChromeOptions()
@@ -25,7 +27,14 @@ chrome_options.add_argument('--no-proxy-server')
 chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome(options=chrome_options)
+
+def exit_handler(signum, frame):
+    driver.quit()
+
+signal.signal(signal.SIGTERM, exit_handler)
+signal.signal(signal.SIGINT, exit_handler)
 
 def submit_form():
 
@@ -50,7 +59,7 @@ def submit_form():
         time.sleep(5 * retry_times)
         # submit
         if driver.find_elements_by_css_selector('.am-button.am-button-primary'):
-            logging.info(u'点击提交')
+            logger.info(u'点击提交')
             driver.find_element_by_css_selector('.am-button.am-button-primary').click()
 
     # 没有提交成功等一个小时后再运行一次
@@ -60,10 +69,10 @@ def submit_form():
     else:
         # 提交成功
         # 如果配置了 sckey 就推送消息到微信
-        logging.info(u'提交成功')
-        if sckey != '':
+        logger.info(u'提交成功')
+        if sckey:
             requests.post('https://sc.ftqq.com/' + sckey + '.send', data=payload)
-            logging.info(u'发送推送')
+            logger.info(u'发送推送')
 
 
 scheduler = BlockingScheduler({'apschedule.timezone': 'Asia/Shanghai'})
